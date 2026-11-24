@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: file:; media-src 'self' file: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>ClipCut</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <linearGradient id="g-accent" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6cff"/><stop offset="1" stop-color="#4f9dff"/></linearGradient>
+    </defs>
+    <symbol id="i-logo" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4" fill="url(#g-accent)"/><path d="M10 9.2v5.6c0 .5.5.8.9.5l4.3-2.8c.4-.2.4-.8 0-1L10.9 8.7c-.4-.3-.9 0-.9.5z" fill="#fff"/></symbol>
+    <symbol id="i-open" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.8l11-7.2c.6-.4.6-1.2 0-1.6l-11-7.2C7.9 3.5 7 4 7 4.8z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1.2" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1.2" fill="currentColor"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 18 9 12l6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-start" viewBox="0 0 24 24"><path d="M6 5v14M18 6v12l-9-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-end" viewBox="0 0 24 24"><path d="M18 5v14M6 6v12l9-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-split" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-in" viewBox="0 0 24 24"><path d="M9 4H6v16h3M13 8l4 4-4 4M17 12H9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h3v16h-3M11 8l-4 4 4 4M7 12h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m17 9 5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-zoomin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 8v6M8 11h6M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-zoomout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h6M20 20l-4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-rotl" viewBox="0 0 24 24"><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 13A8.5 8.5 0 1 0 6 6.5L3 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-rotr" viewBox="0 0 24 24"><path d="M21 4v5h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.5 13A8.5 8.5 0 1 1 18 6.5L21 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-fliph" viewBox="0 0 24 24"><path d="M12 3v18M9 6 3 18h6zM15 6l6 12h-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flipv" viewBox="0 0 24 24"><path d="M3 12h18M6 9 18 3v6zM6 15l12 6v-6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4 17v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8L4 8.5M4 4v4.5h4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+
+  <header class="titlebar">
+    <div class="brand"><svg class="logo"><use href="#i-logo"/></svg><span>ClipCut</span></div>
+    <div class="tb-actions">
+      <button class="tb-btn" id="btnOpen" data-tip="Открыть (Ctrl+O)"><svg><use href="#i-open"/></svg><span>Открыть</span></button>
+      <span class="tb-sep"></span>
+      <button class="tb-icon" id="btnUndo" data-tip="Отменить (Ctrl+Z)" disabled><svg><use href="#i-undo"/></svg></button>
+      <button class="tb-icon" id="btnRedo" data-tip="Повторить (Ctrl+Y)" disabled><svg><use href="#i-redo"/></svg></button>
+    </div>
+    <div class="tb-title" id="fileTitle"></div>
+    <div class="tb-right">
+      <button class="tb-icon" id="btnKeys" data-tip="Горячие клавиши"><svg><use href="#i-key"/></svg></button>
+      <button class="btn-primary sm" id="btnExportTop" disabled><svg><use href="#i-export"/></svg>Экспорт</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="stage-col">
+      <div class="stage" id="stage">
+        <div class="drop" id="drop">
+          <div class="drop-inner">
+            <div class="drop-icon"><svg><use href="#i-upload"/></svg></div>
+            <h2>Перетащите видео сюда</h2>
+            <p>или <button class="link" id="btnOpen2">выберите файл</button> — MP4, MOV, MKV, WebM, AVI и другие</p>
+          </div>
+        </div>
+        <div class="frame-wrap hidden" id="frameWrap">
+          <div class="frame" id="frame">
+            <video id="video" preload="auto" playsinline></video>
+            <div class="fade-veil" id="fadeVeil"></div>
+            <div class="crop-layer" id="cropLayer">
+              <div class="crop-box" id="cropBox">
+                <div class="crop-grid"></div>
+                <i class="h nw" data-h="nw"></i><i class="h ne" data-h="ne"></i><i class="h sw" data-h="sw"></i><i class="h se" data-h="se"></i>
+                <i class="h n" data-h="n"></i><i class="h s" data-h="s"></i><i class="h w" data-h="w"></i><i class="h e" data-h="e"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="busy hidden" id="busy"><div class="spinner"></div><div id="busyText">Загрузка…</div><div class="mini-bar"><i id="busyBar"></i></div></div>
+        <div class="toast" id="toast"></div>
+      </div>
+
+      <div class="transport">
+        <div class="t-left">
+          <span class="timecode" id="tcCur">00:00.00</span><span class="tc-sep">/</span><span class="timecode dim" id="tcDur">00:00.00</span>
+        </div>
+        <div class="t-center">
+          <button class="ic" id="btnStart" data-tip="В начало (Home)"><svg><use href="#i-start"/></svg></button>
+          <button class="ic" id="btnPrevF" data-tip="Кадр назад (←)"><svg><use href="#i-prev"/></svg></button>
+          <button class="play" id="btnPlay" data-tip="Воспроизвести (Пробел)"><svg id="playIcon"><use href="#i-play"/></svg></button>
+          <button class="ic" id="btnNextF" data-tip="Кадр вперёд (→)"><svg><use href="#i-next"/></svg></button>
+          <button class="ic" id="btnEnd" data-tip="В конец (End)"><svg><use href="#i-end"/></svg></button>
+        </div>
+        <div class="t-right">
+          <button class="ic" id="btnMute" data-tip="Звук"><svg id="volIcon"><use href="#i-vol"/></svg></button>
+          <button class="ic" id="btnSnap" data-tip="Сохранить кадр как PNG"><svg><use href="#i-camera"/></svg></button>
+        </div>
+      </div>
+
+      <div class="timeline-panel">
+        <div class="tl-tools">
+          <button class="chip" id="btnIn" data-tip="Начало фрагмента (I)"><svg><use href="#i-in"/></svg>Начало</button>
+          <button class="chip" id="btnOut" data-tip="Конец фрагмента (O)"><svg><use href="#i-out"/></svg>Конец</button>
+          <button class="chip" id="btnSplit" data-tip="Разрезать (S)"><svg><use href="#i-split"/></svg>Разрезать</button>
+          <button class="chip danger" id="btnDel" data-tip="Удалить фрагмент (Delete)"><svg><use href="#i-trash"/></svg>Удалить</button>
+          <div class="tl-info" id="tlInfo">Итог: <b id="outDur">0:00</b></div>
+          <div class="zoom">
+            <button class="ic sm" id="btnZoomOut" data-tip="Отдалить (−)"><svg><use href="#i-zoomout"/></svg></button>
+            <input type="range" id="zoom" min="1" max="40" step="0.1" value="1" />
+            <button class="ic sm" id="btnZoomIn" data-tip="Приблизить (+)"><svg><use href="#i-zoomin"/></svg></button>
+          </div>
+        </div>
+        <div class="tl-scroll" id="tlScroll">
+          <div class="tl-inner" id="tlInner">
+            <div class="ruler" id="ruler"></div>
+            <div class="track video-track" id="vTrack"><div class="film" id="film"></div></div>
+            <div class="track audio-track" id="aTrack"><img id="wave" alt="" /></div>
+            <div class="segs" id="segs"></div>
+            <div class="playhead" id="playhead"><i></i></div>
+            <div class="hover-line" id="hoverLine"><span id="hoverTime"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="edit">Правка</button>
+        <button class="tab" data-tab="export">Экспорт</button>
+        <span class="tab-ink" id="tabInk"></span>
+      </nav>
+
+      <div class="panes">
+        <div class="pane active" data-pane="edit">
+          <section class="group">
+            <div class="g-head"><h3>Кадрирование</h3><button class="reset" data-reset="crop" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="seg-ctrl wrap" id="cropAspect">
+              <button data-v="free" class="on">Свободно</button>
+              <button data-v="16:9">16:9</button>
+              <button data-v="9:16">9:16</button>
+              <button data-v="1:1">1:1</button>
+              <button data-v="4:3">4:3</button>
+              <button data-v="4:5">4:5</button>
+              <button data-v="21:9">21:9</button>
+            </div>
+            <label class="switch-row"><span>Показать рамку на видео</span><input type="checkbox" id="cropShow" /><i class="sw"></i></label>
+            <div class="hint" id="cropInfo">Без кадрирования</div>
+          </section>
+
+          <section class="group">
+            <div class="g-head"><h3>Поворот и отражение</h3><button class="reset" data-reset="transform" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="btn-row">
+              <button class="tool" id="rotL" data-tip="Повернуть влево"><svg><use href="#i-rotl"/></svg></button>
+              <button class="tool" id="rotR" data-tip="Повернуть вправо"><svg><use href="#i-rotr"/></svg></button>
+              <button class="tool" id="flipH" data-tip="Отразить по горизонтали"><svg><use href="#i-fliph"/></svg></button>
+              <button class="tool" id="flipV" data-tip="Отразить по вертикали"><svg><use href="#i-flipv"/></svg></button>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="g-head"><h3>Скорость</h3><button class="reset" data-reset="speed" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="seg-ctrl" id="speedSeg">
+              <button data-v="0.25">0.25×</button><button data-v="0.5">0.5×</button><button data-v="1" class="on">1×</button><button data-v="1.5">1.5×</button><button data-v="2">2×</button><button data-v="4">4×</button>
+            </div>
+          </section>
+
+          <section class="group">
+            <div class="g-head"><h3>Звук</h3><button class="reset" data-reset="audio" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="slider-row"><span>Громкость</span><input type="range" id="volume" min="0" max="200" value="100" /><output id="volumeOut">100%</output></div>
+            <label class="switch-row"><span>Убрать звук</span><input type="checkbox" id="mute" /><i class="sw"></i></label>
+          </section>
+
+          <section class="group">
+            <div class="g-head"><h3>Цвет</h3><button class="reset" data-reset="color" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="slider-row"><span>Яркость</span><input type="range" id="bright" min="-100" max="100" value="0" class="bipolar" /><output id="brightOut">0</output></div>
+            <div class="slider-row"><span>Контраст</span><input type="range" id="contrast" min="-100" max="100" value="0" class="bipolar" /><output id="contrastOut">0</output></div>
+            <div class="slider-row"><span>Насыщенность</span><input type="range" id="sat" min="-100" max="100" value="0" class="bipolar" /><output id="satOut">0</output></div>
+          </section>
+
+          <section class="group">
+            <div class="g-head"><h3>Плавное появление</h3><button class="reset" data-reset="fade" data-tip="Сбросить"><svg><use href="#i-reset"/></svg></button></div>
+            <div class="slider-row"><span>В начале</span><input type="range" id="fadeIn" min="0" max="5" step="0.1" value="0" /><output id="fadeInOut">0 с</output></div>
+            <div class="slider-row"><span>В конце</span><input type="range" id="fadeOut" min="0" max="5" step="0.1" value="0" /><output id="fadeOutOut">0 с</output></div>
+          </section>
+        </div>
+
+        <div class="pane" data-pane="export">
+          <section class="group">
+            <div class="g-head"><h3>Формат</h3></div>
+            <div class="cards" id="fmtCards">
+              <button class="card on" data-v="mp4"><b>MP4</b><small>H.264 · везде</small></button>
+              <button class="card" data-v="hevc"><b>MP4 HEVC</b><small>H.265 · меньше</small></button>
+              <button class="card" data-v="webm"><b>WebM</b><small>VP9 · для веба</small></button>
+              <button class="card" data-v="gif"><b>GIF</b><small>анимация</small></button>
+              <button class="card" data-v="mp3"><b>MP3</b><small>только звук</small></button>
+            </div>
+          </section>
+
+          <section class="group" id="grpRes">
+            <div class="g-head"><h3>Разрешение</h3></div>
+            <div class="seg-ctrl wrap" id="resSeg">
+              <button data-v="0" class="on">Исходное</button>
+              <button data-v="2160">4K</button>
+              <button data-v="1440">1440p</button>
+              <button data-v="1080">1080p</button>
+              <button data-v="720">720p</button>
+              <button data-v="480">480p</button>
+            </div>
+          </section>
+
+          <section class="group" id="grpFps">
+            <div class="g-head"><h3>Частота кадров</h3></div>
+            <div class="seg-ctrl" id="fpsSeg">
+              <button data-v="0" class="on">Исходная</button>
+              <button data-v="24">24</button>
+              <button data-v="30">30</button>
+              <button data-v="60">60</button>
+            </div>
+            <label class="switch-row" id="interpRow"><span>Плавная интерполяция кадров<small>Дорисовывает кадры при повышении FPS. Медленно.</small></span><input type="checkbox" id="interp" /><i class="sw"></i></label>
+          </section>
+
+          <section class="group" id="grpQuality">
+            <div class="g-head"><h3>Качество</h3><span class="g-val" id="qualityName">Высокое</span></div>
+            <input type="range" id="quality" min="0" max="3" step="1" value="1" class="steps" />
+            <div class="steps-lbl"><span>Макс.</span><span>Высокое</span><span>Среднее</span><span>Сжатое</span></div>
+          </section>
+
+          <section class="group" id="grpHw">
+            <div class="g-head"><h3>Кодирование</h3></div>
+            <div class="seg-ctrl" id="hwSeg">
+              <button data-v="auto" class="on">Видеокарта</button>
+              <button data-v="cpu">Процессор</button>
+            </div>
+            <div class="hint" id="hwInfo">Проверка видеокарты…</div>
+          </section>
+
+          <div class="export-foot">
+            <div class="summary" id="summary"></div>
+            <button class="btn-primary wide" id="btnExport" disabled><svg><use href="#i-export"/></svg>Экспортировать</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <div class="modal hidden" id="modal">
+    <div class="sheet">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" id="ringFg"/></svg>
+        <div class="ring-txt" id="ringTxt">0%</div>
+        <svg class="ring-done"><use href="#i-check"/></svg>
+      </div>
+      <h3 id="mTitle">Экспорт…</h3>
+      <p id="mSub" class="dim">Подготовка</p>
+      <pre class="err hidden" id="mErr"></pre>
+      <div class="m-actions" id="mActionsRun"><button class="btn-ghost" id="btnCancel">Отменить</button></div>
+      <div class="m-actions hidden" id="mActionsDone">
+        <button class="btn-ghost" id="btnClose">Закрыть</button>
+        <button class="btn-ghost" id="btnFolder">Показать в папке</button>
+        <button class="btn-primary" id="btnPlayOut">Открыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="keysModal">
+    <div class="sheet keys">
+      <div class="g-head"><h3>Горячие клавиши</h3><button class="reset" id="keysClose"><svg><use href="#i-x"/></svg></button></div>
+      <dl>
+        <dt><kbd>Пробел</kbd></dt><dd>Воспроизведение / пауза</dd>
+        <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Кадр назад / вперёд</dd>
+        <dt><kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd></dt><dd>На 1 секунду</dd>
+        <dt><kbd>J</kbd> <kbd>L</kbd></dt><dd>На 5 секунд</dd>
+        <dt><kbd>I</kbd> <kbd>O</kbd></dt><dd>Начало / конец фрагмента</dd>
+        <dt><kbd>S</kbd></dt><dd>Разрезать в позиции курсора</dd>
+        <dt><kbd>Delete</kbd></dt><dd>Удалить выбранный фрагмент</dd>
+        <dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>В начало / в конец</dd>
+        <dt><kbd>+</kbd> <kbd>−</kbd></dt><dd>Масштаб таймлайна</dd>
+        <dt><kbd>M</kbd></dt><dd>Звук вкл/выкл</dd>
+        <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Y</kbd></dt><dd>Отменить / повторить</dd>
+        <dt><kbd>Ctrl</kbd>+<kbd>O</kbd></dt><dd>Открыть видео</dd>
+        <dt><kbd>Ctrl</kbd>+<kbd>E</kbd></dt><dd>Экспорт</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="tip" id="tip"></div>
+  <script src="renderer.js"></script>
+</body>
+</html>

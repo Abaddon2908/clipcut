@@ -1,0 +1,47 @@
+{
+  "name": "clipcut",
+  "productName": "ClipCut",
+  "version": "1.0.0",
+  "description": "Простой видеоредактор: обрезка, кадрирование, экспорт 60 FPS HD",
+  "main": "src/main.js",
+  "author": "ClipCut",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "npm run pack && makensis -V2 -DVERSION=1.0.0 build/installer.nsi",
+    "pack": "electron-builder --win dir --x64"
+  },
+  "build": {
+    "appId": "com.clipcut.editor",
+    "productName": "ClipCut",
+    "files": [
+      "src/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/ffmpeg.exe",
+        "to": "ffmpeg.exe"
+      }
+    ],
+    "win": {
+      "target": "dir",
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "afterPack": "build/afterPack.js",
+    "compression": "maximum",
+    "electronLanguages": [
+      "ru",
+      "en-US"
+    ]
+  },
+  "devDependencies": {
+    "electron": "38.2.0",
+    "electron-builder": "26.0.12",
+    "pe-library": "^1.0.1",
+    "resedit": "^2.0.3"
+  }
+}
