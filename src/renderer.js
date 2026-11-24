@@ -24,6 +24,7 @@ thumbVideo.muted = true; thumbVideo.preload = 'auto';
 // ===================== helpers =====================
 function fmtTime(t, cs = true) {
   t = Math.max(0, t || 0);
+  t = cs ? Math.round(t * 100) / 100 : Math.round(t);
   const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = Math.floor(t % 60);
   const c = Math.floor((t * 100) % 100);
   const mm = String(m).padStart(2, '0'), ss = String(s).padStart(2, '0');
@@ -282,20 +283,40 @@ function renderTimeline() {
   updatePlayhead(true);
 }
 function renderSegs() {
-  const box = $('#segs'); box.innerHTML = '';
+  const box = $('#segs');
   const segs = S.edit.segments;
+  // gaps are decoration only: rebuild them freely
+  box.querySelectorAll('.gap').forEach((g) => g.remove());
   let prev = 0;
-  const gap = (a, b) => { if (b - a > 1e-4) { const g = document.createElement('div'); g.className = 'gap'; g.style.left = `${a * tl.pps}px`; g.style.width = `${(b - a) * tl.pps}px`; box.appendChild(g); } };
-  segs.forEach((sg, i) => {
-    gap(prev, sg.s); prev = sg.e;
-    const d = document.createElement('div');
-    d.className = 'seg' + (i === S.sel ? ' sel' : '');
-    d.style.left = `${sg.s * tl.pps}px`; d.style.width = `${Math.max(2, (sg.e - sg.s) * tl.pps)}px`;
-    d.innerHTML = `<div class="grip l" data-g="l"></div><div class="grip r" data-g="r"></div><span class="lbl">${fmtShort(sg.e - sg.s)}</span>`;
-    d.dataset.i = i;
-    box.appendChild(d);
-  });
+  const gap = (a, b) => {
+    if (b - a <= 1e-4) return;
+    const g = document.createElement('div'); g.className = 'gap';
+    g.style.left = `${a * tl.pps}px`; g.style.width = `${(b - a) * tl.pps}px`;
+    box.prepend(g);
+  };
+  segs.forEach((sg) => { gap(prev, sg.s); prev = sg.e; });
   gap(prev, S.duration);
+  // segment elements are updated in place, so a drag in progress never loses its element
+  let els = box.querySelectorAll('.seg');
+  if (els.length !== segs.length) {
+    els.forEach((e) => e.remove());
+    segs.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'seg'; d.dataset.i = i;
+      d.innerHTML = '<div class="grip l" data-g="l"></div><div class="grip r" data-g="r"></div><span class="lbl"></span>';
+      box.appendChild(d);
+    });
+    els = box.querySelectorAll('.seg');
+  }
+  segs.forEach((sg, i) => {
+    const d = els[i];
+    d.classList.toggle('sel', i === S.sel);
+    const lo = i > 0 ? segs[i - 1].e : 0, hi = i < segs.length - 1 ? segs[i + 1].s : S.duration;
+    d.classList.toggle('movable', (hi - lo) - (sg.e - sg.s) > 1e-3);
+    d.style.left = `${sg.s * tl.pps}px`;
+    d.style.width = `${Math.max(2, (sg.e - sg.s) * tl.pps)}px`;
+    d.querySelector('.lbl').textContent = `${fmtShort(sg.s)} – ${fmtShort(sg.e)} · ${fmtTime(sg.e - sg.s, false)}`;
+  });
   $('#outDur').textContent = fmtTime(outDuration(), false);
   $('#btnDel').disabled = segs.length <= 1;
   updateSummary();
@@ -310,21 +331,39 @@ function segIndexAt(t) { return S.edit.segments.findIndex((s) => t >= s.s - 1e-6
 (function timelineInput() {
   const inner = $('#tlInner');
   let mode = null;
+  const MIN = () => Math.max(0.1, 2 / fps());
+  const segRoom = (i) => {
+    const segs = S.edit.segments;
+    const lo = i > 0 ? segs[i - 1].e : 0, hi = i < segs.length - 1 ? segs[i + 1].s : S.duration;
+    return (hi - lo) - (segs[i].e - segs[i].s);
+  };
+  inner.addEventListener('dragstart', (ev) => ev.preventDefault());
   inner.addEventListener('pointerdown', (ev) => {
     if (!S.duration || ev.button !== 0) return;
-    inner.setPointerCapture(ev.pointerId);
+    ev.preventDefault();
+    try { inner.setPointerCapture(ev.pointerId); } catch (_) {}
     const grip = ev.target.dataset.g;
     const segEl = ev.target.closest('.seg');
-    if (grip && segEl) {
+    const onKnob = !!ev.target.closest('#playhead');
+    const t = timeAtX(ev.clientX);
+    const wasPlaying = !video.paused;
+    if (onKnob) {
+      // only the knob on top of the playhead moves the playhead
+      video.pause();
+      mode = { type: 'scrub', wasPlaying };
+      document.body.classList.add('drag-ew');
+    } else if (grip && segEl) {
+      video.pause();
       const i = +segEl.dataset.i;
       S.sel = i; mode = { type: 'grip', i, side: grip };
-      video.pause();
+      document.body.classList.add('drag-ew');
+    } else if (segEl) {
+      // segment body: click selects, drag moves the whole segment (if there is room)
+      const i = +segEl.dataset.i, sg = S.edit.segments[i];
+      S.sel = i;
+      mode = segRoom(i) > 1e-3 ? { type: 'body', i, x0: ev.clientX, t0: t, s0: sg.s, e0: sg.e, moved: false } : null;
     } else {
-      mode = { type: 'scrub', wasPlaying: !video.paused };
-      video.pause();
-      const t = timeAtX(ev.clientX);
-      const si = segIndexAt(t); if (si >= 0) S.sel = si;
-      seek(t);
+      mode = null;
     }
     renderSegs();
   });
@@ -334,27 +373,40 @@ function segIndexAt(t) { return S.edit.segments.findIndex((s) => t >= s.s - 1e-6
     const hl = $('#hoverLine'); hl.classList.add('on');
     hl.style.left = `${t * tl.pps}px`; $('#hoverTime').textContent = fmtTime(t);
     if (!mode) return;
+    const segs = S.edit.segments;
     if (mode.type === 'scrub') seek(t);
     else if (mode.type === 'grip') {
-      const segs = S.edit.segments, sg = segs[mode.i];
-      const MIN = Math.max(0.1, 2 / fps());
+      const sg = segs[mode.i];
       if (mode.side === 'l') {
         const lo = mode.i > 0 ? segs[mode.i - 1].e : 0;
-        sg.s = clamp(t, lo, sg.e - MIN); seek(sg.s);
+        sg.s = clamp(t, lo, sg.e - MIN()); seek(sg.s);
       } else {
         const hi = mode.i < segs.length - 1 ? segs[mode.i + 1].s : S.duration;
-        sg.e = clamp(t, sg.s + MIN, hi); seek(sg.e);
+        sg.e = clamp(t, sg.s + MIN(), hi); seek(sg.e);
       }
+      renderSegs();
+    } else if (mode.type === 'body') {
+      if (!mode.moved && Math.abs(ev.clientX - mode.x0) < 4) return;
+      if (!mode.moved) { mode.moved = true; document.body.classList.add('drag-move'); }
+      const sg = segs[mode.i], len = mode.e0 - mode.s0;
+      const lo = mode.i > 0 ? segs[mode.i - 1].e : 0;
+      const hi = mode.i < segs.length - 1 ? segs[mode.i + 1].s : S.duration;
+      const ns = clamp(mode.s0 + (t - mode.t0), lo, hi - len);
+      sg.s = ns; sg.e = ns + len;
       renderSegs();
     }
   });
   inner.addEventListener('pointerleave', () => $('#hoverLine').classList.remove('on'));
   const end = () => {
-    if (mode && mode.type === 'grip') commit();
-    if (mode && mode.type === 'scrub' && mode.wasPlaying) play();
+    if (!mode) return;
+    if (mode.type === 'grip' || (mode.type === 'body' && mode.moved)) commit();
+    if (mode.type === 'scrub' && mode.wasPlaying) play();
+    document.body.classList.remove('drag-ew', 'drag-move');
     mode = null;
   };
-  inner.addEventListener('pointerup', end); inner.addEventListener('pointercancel', end);
+  inner.addEventListener('pointerup', end);
+  inner.addEventListener('pointercancel', end);
+  inner.addEventListener('lostpointercapture', end);
   // zoom with ctrl+wheel, scroll with wheel
   $('#tlScroll').addEventListener('wheel', (ev) => {
     if (!S.duration) return;
@@ -393,7 +445,7 @@ async function buildFilm() {
   c.width = tw * 2; c.height = th * 2;
   const ctx = c.getContext('2d');
   const imgs = [];
-  for (let i = 0; i < n; i++) { const im = document.createElement('img'); im.style.opacity = 0; film.appendChild(im); imgs.push(im); }
+  for (let i = 0; i < n; i++) { const im = document.createElement('img'); im.draggable = false; im.style.opacity = 0; film.appendChild(im); imgs.push(im); }
   for (let i = 0; i < n; i++) {
     if (token !== filmToken) return;
     const t = (i + 0.5) * S.duration / n;
@@ -650,9 +702,9 @@ function encoderFor(fmt, hwChoice) {
     const base = fmt === 'mp4' ? 'h264' : 'hevc';
     const v = pick(base);
     const tag = fmt === 'hevc' ? ['-tag:v', 'hvc1'] : [];
-    if (v === 'nvenc') return { name: 'NVIDIA NVENC', hw: true, args: ['-c:v', `${base}_nvenc`, '-preset', 'p5', '-tune', 'hq', '-rc', 'vbr', '-cq', String(crf + 3), '-b:v', '0', '-pix_fmt', 'yuv420p', ...tag] };
+    if (v === 'nvenc') return { name: 'NVIDIA NVENC', hw: true, args: ['-c:v', `${base}_nvenc`, '-preset', 'p4', '-tune', 'hq', '-rc', 'vbr', '-cq', String(crf + 3), '-b:v', '0', '-pix_fmt', 'yuv420p', ...tag] };
     if (v === 'qsv') return { name: 'Intel Quick Sync', hw: true, args: ['-c:v', `${base}_qsv`, '-preset', 'medium', '-global_quality', String(crf + 3), '-pix_fmt', 'nv12', ...tag] };
-    if (v === 'amf') return { name: 'AMD AMF', hw: true, args: ['-c:v', `${base}_amf`, '-quality', 'quality', '-rc', 'cqp', '-qp_i', String(crf + 1), '-qp_p', String(crf + 3), '-pix_fmt', 'nv12', ...tag] };
+    if (v === 'amf') return { name: 'AMD AMF', hw: true, args: ['-c:v', `${base}_amf`, '-quality', 'balanced', '-rc', 'cqp', '-qp_i', String(crf + 1), '-qp_p', String(crf + 3), '-pix_fmt', 'nv12', ...tag] };
     if (fmt === 'mp4') return { name: 'Процессор (x264)', args: ['-c:v', 'libx264', '-preset', q === 0 ? 'slow' : 'medium', '-crf', String(crf), '-pix_fmt', 'yuv420p'] };
     return { name: 'Процессор (x265)', args: ['-c:v', 'libx265', '-preset', 'medium', '-crf', String(crf + 4), '-pix_fmt', 'yuv420p', ...tag] };
   }
@@ -667,20 +719,17 @@ function buildArgs(out, hwChoice) {
   const wantV = x.fmt !== 'mp3';
   const args = [];
   const N = segs.length;
-  if (N === 1) args.push('-ss', segs[0].s.toFixed(4), '-t', (segs[0].e - segs[0].s).toFixed(4));
-  args.push('-i', S.file);
+  const enc = encoderFor(x.fmt, hwChoice);
+  const gpu = hwChoice === 'auto' && S.hw && Object.values(S.hw).some(Boolean);
+  // one fast-seeking input per segment: only the kept parts are decoded
+  segs.forEach((sg) => {
+    if (gpu) args.push('-hwaccel', 'auto');
+    args.push('-ss', sg.s.toFixed(4), '-t', (sg.e - sg.s).toFixed(4), '-i', S.file);
+  });
   const g = [];
   let vin = '[0:v]', ain = '[0:a]';
   if (N > 1) {
-    if (wantV) {
-      g.push(`[0:v]split=${N}${segs.map((_, i) => `[sv${i}]`).join('')}`);
-      segs.forEach((s, i) => g.push(`[sv${i}]trim=start=${s.s.toFixed(4)}:end=${s.e.toFixed(4)},setpts=PTS-STARTPTS[tv${i}]`));
-    }
-    if (hasA) {
-      g.push(`[0:a]asplit=${N}${segs.map((_, i) => `[sa${i}]`).join('')}`);
-      segs.forEach((s, i) => g.push(`[sa${i}]atrim=start=${s.s.toFixed(4)}:end=${s.e.toFixed(4)},asetpts=PTS-STARTPTS[ta${i}]`));
-    }
-    const ins = segs.map((_, i) => `${wantV ? `[tv${i}]` : ''}${hasA ? `[ta${i}]` : ''}`).join('');
+    const ins = segs.map((_, i) => `${wantV ? `[${i}:v]` : ''}${hasA ? `[${i}:a]` : ''}`).join('');
     g.push(`${ins}concat=n=${N}:v=${wantV ? 1 : 0}:a=${hasA ? 1 : 0}${wantV ? '[vc]' : ''}${hasA ? '[ac]' : ''}`);
     vin = '[vc]'; ain = '[ac]';
   }
@@ -690,7 +739,7 @@ function buildArgs(out, hwChoice) {
     if (e.speed !== 1) vf.push(`setpts=PTS/${e.speed}`);
     const [ow, oh] = outDims();
     const [cw, ch] = cropPixels();
-    if (ow !== cw || oh !== ch) vf.push(`scale=${ow}:${oh}:flags=lanczos`);
+    if (ow !== cw || oh !== ch) vf.push(`scale=${ow}:${oh}:flags=bicubic`);
     else vf.push('scale=trunc(iw/2)*2:trunc(ih/2)*2');
     vf.push('setsar=1');
     const of = outFps();
@@ -718,7 +767,6 @@ function buildArgs(out, hwChoice) {
   args.push('-filter_complex', g.join(';'));
   if (wantV) args.push('-map', '[vout]');
   if (hasA) args.push('-map', '[aout]');
-  const enc = encoderFor(x.fmt, hwChoice);
   if (x.fmt === 'gif') args.push('-loop', '0');
   else if (x.fmt === 'mp3') args.push('-c:a', 'libmp3lame', '-q:a', String([0, 2, 4, 6][x.quality]));
   else {
@@ -743,11 +791,12 @@ async function doExport() {
   S.exporting = true; S.lastOut = out;
   openModal();
   let job = buildArgs(out, S.exp.hw);
+  S.encName = job.enc.name || '';
   $('#mSub').textContent = job.enc.name ? `Кодирование: ${job.enc.name}` : 'Обработка…';
   let r = await api.exportVideo({ args: job.args, total: job.total });
   if (!r.ok && !r.cancelled && job.enc.hw) {
     $('#mSub').textContent = 'Видеокарта не справилась — переключаюсь на процессор…';
-    job = buildArgs(out, 'cpu');
+    job = buildArgs(out, 'cpu'); S.encName = job.enc.name || '';
     r = await api.exportVideo({ args: job.args, total: job.total });
   }
   S.exporting = false;
@@ -768,6 +817,7 @@ api.onExportProgress(({ p, eta, speed }) => {
   const parts = [];
   if (eta != null && isFinite(eta)) parts.push(`осталось ~${fmtShort(Math.ceil(eta))}`);
   if (speed) parts.push(`скорость ${speed.toFixed(1)}×`);
+  if (S.encName) parts.unshift(S.encName);
   if (parts.length) $('#mSub').textContent = parts.join(' · ');
 });
 async function finishModal(r, out) {

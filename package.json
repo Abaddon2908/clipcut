@@ -1,7 +1,7 @@
 {
   "name": "clipcut",
   "productName": "ClipCut",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Простой видеоредактор: обрезка, кадрирование, экспорт 60 FPS HD",
   "main": "src/main.js",
   "author": "ClipCut",
